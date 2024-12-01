@@ -5,7 +5,7 @@ const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const token = '6879428578:AAHVQeIwfMBMQUvnoV6hwumA5wgvXS0Mrr8';
+const token = '7870054164:AAFXEunNupYWvCJl_3zWCq8t7QlHfy7ChLU';
 const CHROMEDRIVER_PATH = './chromedriver';
 
 const bot = new Telegraf(token);
