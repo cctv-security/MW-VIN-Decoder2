@@ -19,7 +19,12 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
+       
         run: npm install
-
+        
+        -name: npm chelo
+        
+        run: npm install cheerio
+        
       - name: Run main.js
         run: node main.js
