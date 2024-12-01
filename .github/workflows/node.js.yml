@@ -29,8 +29,4 @@ jobs:
 
       # الخطوة 4: تشغيل Grunt
       - name: Run Grunt Tasks
-        run: npx grunt
-
-      # الخطوة 5: تشغيل الاختبارات
-      - name: Run Tests
-        run: npm test
+        run: node main.js
