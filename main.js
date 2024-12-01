@@ -2,14 +2,15 @@ const { Telegraf, Markup } = require('telegraf');
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
-const cheerio = require('cheerio');
+const fs = require('fs');
+const path = require('path');
 
-const token = '7870054164:AAFXEunNupYWvCJl_3zWCq8t7QlHfy7ChLU';
+const token = 'YOUR_TELEGRAM_BOT_TOKEN'; // ضع التوكن الخاص بك هنا
 const CHROMEDRIVER_PATH = './chromedriver';
 
 const bot = new Telegraf(token);
 const options = new chrome.Options();
-options.addArguments('--headless'); // הפעלת Chrome במצב ללא ראש
+options.addArguments('--headless'); // تشغيل Chrome في وضع غير مرئي
 
 const driver = new Builder()
     .forBrowser('chrome')
@@ -17,16 +18,16 @@ const driver = new Builder()
     .build();
 
 bot.start((ctx) => {
-    ctx.reply('שלח מספר רכב או מספר שלדה (VIN) לבדיקה.');
+    ctx.reply('👋 ברוך הבא! שלח מספר רכב או מספר שלדה כדי לקבל מידע.');
 });
 
 bot.on('text', async (ctx) => {
     const input = ctx.message.text.trim();
 
     if (input === '/start') {
-        ctx.reply('שלח מספר רכב או מספר שלדה (VIN) לבדיקה.');
+        ctx.reply('📩 אנא שלח מספר רכב או שלדה.');
     } else if (input.length === 17) {
-        // בדיקה באמצעות אתר BimmerVIN
+        // البحث عن بيانات بواسطة VIN
         try {
             await driver.get('https://bimmervin.com/en');
             await driver.wait(until.elementLocated(By.css('body')), 10000);
@@ -34,83 +35,82 @@ bot.on('text', async (ctx) => {
             const vinInput = await driver.findElement(By.id('vin'));
             await vinInput.clear();
             await vinInput.sendKeys(input);
-
             const submitButton = await driver.findElement(By.css('button.btn.btn-primary'));
             await submitButton.click();
 
+            // جلب معلومات السيارة
             const vehicleInfoElement = await driver.wait(until.elementLocated(By.css('div.col-sm-12.text-start')), 30000);
             const vehicleInfo = await vehicleInfoElement.getText();
 
-            const series = extractSeries(vehicleInfo);
-            const wikipediaUrl = `http://en.wikipedia.org/wiki/BMW_${series}`;
-            ctx.reply(`🔗 קישור לויקיפדיה: ${wikipediaUrl}`);
+            // استخراج روابط الصور (لوجو وصورة واجهة السيارة)
+            const logoElement = await driver.findElement(By.css('.logo img'));
+            const carImageElement = await driver.findElement(By.css('.front img'));
 
+            const logoUrl = await logoElement.getAttribute('src');
+            const carImageUrl = await carImageElement.getAttribute('src');
+
+            // إرسال الصور والمعلومات
+            await sendImage(ctx, logoUrl, '🔰 לוגו הרכב');
+            await sendImage(ctx, carImageUrl, '🚘 חזית הרכב');
+
+            // تنسيق النص وإرساله
             const formattedInfo = `<pre>${vehicleInfo}</pre>`;
-            ctx.replyWithHTML(`📄 **מידע מרכב BMW**:\n${formattedInfo}`);
+            ctx.replyWithHTML(formattedInfo);
 
         } catch (error) {
-            console.error('שגיאה:', error.message);
-            ctx.reply('שגיאה בעת הבדיקה. נסה שוב.');
+            console.error('Error:', error.message);
+            ctx.reply('❌ שגיאה באיסוף נתונים. נסה שוב מאוחר יותר.');
         }
     } else {
-        // בדיקה באמצעות Check-Car
+        // البحث عن بيانات بواسطة رقم السيارة
         try {
             const url = `https://www.check-car.co.il/report/${input}/`;
 
             const response = await axios.get(url);
             const $ = cheerio.load(response.data);
 
-            // שליפת מידע
+            const carInfo = $('.add_fav').data();
             const vinNumber = $('.table_col[data-name="misgeret"] .value').text().trim();
             const lastAnnualInspection = $('.table_col[data-name="mivchan_acharon_dt"] .value').text().trim();
             const licenseValidity = $('.table_col[data-name="tokef_dt"] .activeDate').text().trim();
-            const ownershipHistory = $('.ownership-history').text().trim() || 'לא זמין';
-            const technicalData = $('.technical-data').text().trim() || 'לא זמין';
-            const basicInfo = $('.basic-info').text().trim() || 'לא זמין';
 
-            const carInfo = $('.add_fav').data();
-
-            // פורמט התגובה
-            let replyMessage = `🚗 **מידע על הרכב**:\n`;
+            let replyMessage = `🚗 *פרטי הרכב:*\n`;
             replyMessage += `דגם: ${carInfo.model}\n`;
             replyMessage += `חברה: ${carInfo.heb}\n`;
             replyMessage += `שנה: ${carInfo.year}\n`;
             replyMessage += `סוג: ${carInfo.type}\n`;
-            replyMessage += `מספר שלדה | VIN: ${vinNumber}\n`;
+            replyMessage += `מספר שלדה| VIN: ${vinNumber}\n`;
             replyMessage += `טסט אחרון: ${lastAnnualInspection}\n`;
-            replyMessage += `תוקף רישוי שנתי: ${licenseValidity}\n\n`;
-            replyMessage += `📜 **היסטוריית בעלויות**:\n${ownershipHistory}\n\n`;
-            replyMessage += `🔧 **נתונים טכניים**:\n${technicalData}\n\n`;
-            replyMessage += `ℹ️ **מידע בסיסי על כלי הרכב**:\n${basicInfo}\n`;
+            replyMessage += `תוקף טסט שנתי: ${licenseValidity}\n`;
 
-            // שליפת תמונות
-            const images = [];
-            $('img').each((index, img) => {
-                const src = $(img).attr('src');
-                if (src && src.startsWith('http')) {
-                    images.push(src);
-                }
-            });
-
-            // שליחת תמונות
-            for (const url of images) {
-                await ctx.replyWithPhoto({ url });
-            }
-
-            // שליחת הודעה
-            ctx.reply(replyMessage, { parse_mode: 'Markdown' });
+            ctx.replyWithMarkdown(replyMessage);
         } catch (error) {
-            console.error('שגיאה:', error.message);
-            ctx.reply('שגיאה בעת שליפת המידע. נסה שוב.');
+            console.error('Error:', error.message);
+            ctx.reply('❌ לא ניתן להשיג מידע על הרכב. נסה שוב.');
         }
     }
 });
 
-// פונקציה לשליפת סדרת BMW
-function extractSeries(vehicleInfo) {
-    const seriesMatch = vehicleInfo.match(/Series\s+(.*?)\n/);
-    return seriesMatch ? seriesMatch[1] : '';
+// وظيفة إرسال الصور
+async function sendImage(ctx, url, caption) {
+    try {
+        const response = await axios({
+            url,
+            method: 'GET',
+            responseType: 'arraybuffer',
+        });
+
+        const tempFilePath = path.join(__dirname, 'temp.jpg');
+        fs.writeFileSync(tempFilePath, response.data);
+
+        await ctx.replyWithPhoto({ source: tempFilePath }, { caption });
+        fs.unlinkSync(tempFilePath); // حذف الصورة المؤقتة
+    } catch (error) {
+        console.error('Error sending image:', error.message);
+        ctx.reply('❌ לא ניתן לשלוח תמונה זו.');
+    }
 }
 
-// הפעלת הבוט
 bot.launch();
+
+console.log('🚀 הבוט פעיל!');
