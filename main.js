@@ -49,7 +49,7 @@ bot.on('text', async (ctx) => {
 
         } catch (error) {
             console.error('Error:', error.message);
-            ctx.reply('❌ לא ניתן לאסוף מידע על הרכב, אנא נסה שוב.');
+            ctx.reply('❗حدث خطأ أثناء جلب معلومات السيارة. يرجى المحاولة مرة أخرى.');
         }
     } else {
         try {
@@ -81,6 +81,16 @@ bot.on('text', async (ctx) => {
             const recallStatus = $('.table_col[data-name="recall"] .value').text().trim() === '✓' ? 'קריאת ריקול בוצעה' : 'קריאת ריקול שלא בוצעה';
             const handicappedTag = $('.table_col[data-name="tav_neche"] .value').text().trim() === '✓' ? 'כן' : 'לא';
 
+            // Extract ownership history data
+            const ownershipHistory = [];
+            $('.data_table.wide_table.history_table .table_col').each((i, element) => {
+                const label = $(element).find('.label').text().trim();
+                const value = $(element).find('.value').text().trim();
+                if (label && value) {
+                    ownershipHistory.push(`<b>${label}:</b> ${value}`);
+                }
+            });
+
             // Formatting the response message with colors and emojis
             let replyMessage = `🚗 <b>מידע על הרכב:</b>\n`;
             replyMessage += `<b>🔹 דגם:</b> ${modelName}\n`;
@@ -108,18 +118,13 @@ bot.on('text', async (ctx) => {
             replyMessage += `<b>⚠️ קריאת ריקול:</b> ${recallStatus}\n`;
             replyMessage += `<b>♿️ תו נכה:</b> ${handicappedTag}\n\n`;
 
-            // Adding technical data section
-            replyMessage += `<b>🛠️ נתונים טכניים:</b>\n`;
-            replyMessage += `<b>🌍 ארץ ייצור:</b> ${countryOfOrigin}\n`;
-            replyMessage += `<b>🇪🇺 סיווג תקינה אירופאית:</b> ${europeanClassification}\n`;
-            replyMessage += `<b>🔢 קוד תוצר:</b> ${productCode}\n`;
-            replyMessage += `<b>🔧 מספר דגם:</b> ${modelNumber}\n`;
-            replyMessage += `<b>🛠️ דגם מנוע:</b> ${engineModel}\n`;
-            replyMessage += `<b>📄 הוראת רישום:</b> ${registrationOrder}\n`;
-            replyMessage += `<b>⚖️ משקל כולל:</b> ${totalWeight}\n`;
-            replyMessage += `<b>⚖️ משקל עצמי:</b> ${curbWeight}\n`;
-            replyMessage += `<b>⚖️ משקל מטען מורשה:</b> ${maxCargoWeight}\n`;
-            replyMessage += `<b>🚶‍♂️ מספר מקומות ליד הנהג:</b> ${driverSeats}\n`;
+            // Adding ownership history section
+            if (ownershipHistory.length > 0) {
+                replyMessage += `<b>📅 היסטוריית בעלות:</b>\n`;
+                ownershipHistory.forEach(item => {
+                    replyMessage += `${item}\n`;
+                });
+            }
 
             // Send the final information with HTML formatting
             ctx.replyWithHTML(replyMessage);
