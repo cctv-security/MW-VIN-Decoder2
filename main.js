@@ -49,7 +49,7 @@ bot.on('text', async (ctx) => {
 
         } catch (error) {
             console.error('Error:', error.message);
-            ctx.reply('❗حدث خطأ أثناء جلب معلومات السيارة. يرجى المحاولة مرة أخرى.');
+            ctx.reply('❗❌ לא ניתן לאסוף מידע על הרכב, אנא נסה שוב.');
         }
     } else {
         try {
@@ -101,11 +101,11 @@ bot.on('text', async (ctx) => {
             replyMessage += `<b>🔹 סוג מרכב:</b> ${carBodyType}\n`;
             replyMessage += `<b>🔹 נפח מנוע:</b> ${engineCapacity}\n`;
             replyMessage += `<b>🔹 מספר שלדה | VIN:</b> ${vinNumber}\n`;
-            replyMessage += `<b>🔹 מועד עלייה לכביש:</b> ${registrationDate}\n`;
+            replyMessage += `<b>🔹 מועד עלייה לכביש:</b> ${registrationDate}\n\n`;
             
             replyMessage += `<b>🔹 סוג דלק:</b> ${fuelType}\n`;
             replyMessage += `<b>🔹 הנעה:</b> ${drivetrain}\n`;
-            replyMessage += `<b>🔹 אוטומטי:</b> ${isAutomatic}\n`;
+            replyMessage += `<b>🔹 אוטומטי:</b> ${isAutomatic}\n\n`;
             
             replyMessage += `<b>🔹 טסט אחרון:</b> ${lastAnnualInspection}\n`;
             replyMessage += `<b>🔹 תוקף רישוי:</b> ${licenseValidity}\n\n`;
@@ -114,8 +114,8 @@ bot.on('text', async (ctx) => {
             replyMessage += `<b>📊 נתונים עדכניים:</b>\n`;
             replyMessage += `<b>🔑 בעלות נוכחית:</b> ${currentOwnership}\n`;
             replyMessage += `<b>🔑 קבוצת אגרה:</b> ${registrationGroup}\n`;
-            replyMessage += `<b>💰 מחיר אגרת רכב:</b> ${vehicleFee}\n`;
-            
+            repyMessage += `<b>💰 מחיר אגרת רכב:</b> ${vehicleFee}\n\n`;
+            //
             replyMessage += `<b>💵 מחיר יבואן:</b> ${importPrice}\n`;
             replyMessage += `<b>💸 שווי שימוש:</b> ${usageValue}\n`;
             replyMessage += `<b>⚠️ קריאת ריקול:</b> ${recallStatus}\n`;
