@@ -1,0 +1,54 @@
+name: Node.js Telegram Bot Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  bot-deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. التحقق من الشيفرة المصدرية
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. إعداد Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. تثبيت الحزم
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. تنزيل وتثبيت ChromeDriver
+      - name: Install ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+
+      # 5. تثبيت Google Chrome
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get install -y software-properties-common
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      # 6. التحقق من صحة الكود
+      - name: Lint and Test Code
+        run: npm test
+
+      # 7. تشغيل البوت
+      - name: Launch Telegram Bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }} # أضف هذا المتغير السري في إعدادات المشروع
+        run: node main.js
