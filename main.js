@@ -27,23 +27,28 @@ bot.on('text', async (ctx) => {
         ctx.reply('שלח מספר רכב או מספר שלדה כדי לאסוף מידע 📄');
     } else if (input.length === 17) {
         try {
+            // فتح الموقع
             await driver.get('https://bimmervin.com/en');
-            await driver.wait(until.elementLocated(By.css('body')), 10000); // Wait for the body element to be present
+            await driver.wait(until.elementLocated(By.css('body')), 10000); // انتظار لتحميل الصفحة الأساسية
 
+            // إدخال رقم الشاسيه وإرسال الطلب
             const vinInput = await driver.findElement(By.id('vin'));
             await vinInput.clear();
             await vinInput.sendKeys(input);
             const submitButton = await driver.findElement(By.css('button.btn.btn-primary'));
             await submitButton.click();
 
-            // Wait for the vehicle info element to be located with an increased timeout
+            // انتظار لتحميل النتائج
             const vehicleInfoElement = await driver.wait(until.elementLocated(By.css('div.col-sm-12.text-start')), 30000);
+            await driver.sleep(30000); // إضافة تأخير إضافي للتأكد من التحميل الكامل
             const vehicleInfo = await vehicleInfoElement.getText();
 
+            // استخراج السلسلة وإنشاء رابط ويكيبيديا
             const series = extractSeries(vehicleInfo);
             const wikipediaUrl = `http://en.wikipedia.org/wiki/BMW_${series}`;
             ctx.replyWithHTML(`<b>🔗 קישור לויקיפדיה לדגם:</b> <a href="${wikipediaUrl}">${series}</a>`);
 
+            // إرسال المعلومات بالتنسيق المناسب
             const formattedInfo = `<pre><b>📝 מידע על הרכב:</b>\n${vehicleInfo}</pre>`;
             ctx.replyWithHTML(formattedInfo);
 
@@ -70,7 +75,7 @@ bot.on('text', async (ctx) => {
             const fuelType = $('.table_col[data-name="sug_delek_nm"] .value').text().trim();
             const drivetrain = $('.table_col[data-name="hanaa_nm"] .value').text().trim();
 
-            // Extracting updated vehicle data
+            // بيانات محدثة
             const currentOwnership = $('.table_col[data-name="baalut"] .value').text().trim();
             const lastAnnualInspection = $('.table_col[data-name="mivchan_acharon_dt"] .value').text().trim();
             const licenseValidity = $('.table_col[data-name="tokef_dt"] .activeDate').text().trim();
@@ -81,17 +86,7 @@ bot.on('text', async (ctx) => {
             const recallStatus = $('.table_col[data-name="recall"] .value').text().trim() === '✓' ? 'קריאת ריקול בוצעה' : 'קריאת ריקול שלא בוצעה';
             const handicappedTag = $('.table_col[data-name="tav_neche"] .value').text().trim() === '✓' ? 'כן' : 'לא';
 
-            // Extract ownership history data
-            const ownershipHistory = [];
-            $('.data_table.wide_table.history_table .table_col').each((i, element) => {
-                const label = $(element).find('.label').text().trim();
-                const value = $(element).find('.value').text().trim();
-                if (label && value) {
-                    ownershipHistory.push(`<b>${label}:</b> ${value}`);
-                }
-            });
-
-            // Formatting the response message with colors and emojis
+            // صياغة الرسالة النهائية
             let replyMessage = `🚗 <b>מידע על הרכב:</b>\n`;
             replyMessage += `<b>🔹 דגם:</b> ${modelName}\n`;
             replyMessage += `<b>🔹 חברה:</b> ${manufacturer}\n`;
@@ -102,34 +97,7 @@ bot.on('text', async (ctx) => {
             replyMessage += `<b>🔹 נפח מנוע:</b> ${engineCapacity}\n`;
             replyMessage += `<b>🔹 מספר שלדה | VIN:</b> ${vinNumber}\n`;
             replyMessage += `<b>🔹 מועד עלייה לכביש:</b> ${registrationDate}\n\n`;
-            
-            replyMessage += `<b>🔹 סוג דלק:</b> ${fuelType}\n`;
-            replyMessage += `<b>🔹 הנעה:</b> ${drivetrain}\n`;
-            replyMessage += `<b>🔹 אוטומטי:</b> ${isAutomatic}\n\n`;
-            
-            replyMessage += `<b>🔹 טסט אחרון:</b> ${lastAnnualInspection}\n`;
-            replyMessage += `<b>🔹 תוקף רישוי:</b> ${licenseValidity}\n\n`;
 
-            // Adding the updated vehicle data section
-            replyMessage += `<b>📊 נתונים עדכניים:</b>\n`;
-            replyMessage += `<b>🔑 בעלות נוכחית:</b> ${currentOwnership}\n`;
-            replyMessage += `<b>🔑 קבוצת אגרה:</b> ${registrationGroup}\n`;
-            replyMessage += `<b>💰 מחיר אגרת רכב:</b> ${vehicleFee}\n\n`;
-            //
-            replyMessage += `<b>💵 מחיר יבואן:</b> ${importPrice}\n`;
-            replyMessage += `<b>💸 שווי שימוש:</b> ${usageValue}\n`;
-            replyMessage += `<b>⚠️ קריאת ריקול:</b> ${recallStatus}\n`;
-            replyMessage += `<b>♿️ תו נכה:</b> ${handicappedTag}\n\n`;
-
-            // Adding ownership history section
-            if (ownershipHistory.length > 0) {
-                replyMessage += `<b>📅 היסטוריית בעלות:</b>\n`;
-                ownershipHistory.forEach(item => {
-                    replyMessage += `${item}\n`;
-                });
-            }
-
-            // Send the final information with HTML formatting
             ctx.replyWithHTML(replyMessage);
         } catch (error) {
             console.error('Error during scraping:', error);
@@ -140,7 +108,7 @@ bot.on('text', async (ctx) => {
 
 bot.launch();
 
-// Helper function to extract the series from the vehicle info text
+// دالة مساعدة لاستخراج سلسلة المركبة
 function extractSeries(vehicleInfo) {
     const seriesMatch = vehicleInfo.match(/Series\s+(.*?)\n/);
     return seriesMatch ? seriesMatch[1] : '';
