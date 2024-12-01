@@ -93,6 +93,18 @@ bot.on('text', async (ctx) => {
             const fuelType = $('.table_col[data-name="sug_delek_nm"] .value').text().trim();
             const drivetrain = $('.table_col[data-name="hanaa_nm"] .value').text().trim();
 
+            // Extracting additional technical data
+            const countryOfOrigin = $('.table_col[data-name="tozeret_eretz_nm"] .value').text().trim();
+            const europeanClassification = $('.table_col[data-name="tkina_eu"] .value').text().trim();
+            const productCode = $('.table_col[data-name="tozeret_cd"] .value').text().trim();
+            const modelNumber = $('.table_col[data-name="degem_nm"] .value').text().trim();
+            const engineModel = $('.table_col[data-name="degem_manoa"] .value').text().trim();
+            const registrationOrder = $('.table_col[data-name="horaat_rishum"] .value').text().trim();
+            const totalWeight = $('.table_col[data-name="mishkal_kolel"] .value').text().trim();
+            const curbWeight = $('.table_col[data-name="mishkal_azmi"] .value').text().trim();
+            const maxCargoWeight = $('.table_col[data-name="mishkal_mitan_harama"] .value').text().trim();
+            const driverSeats = $('.table_col[data-name="mispar_mekomot_leyd_nahag"] .value').text().trim();
+
             // Fetching additional car info from the page
             const lastAnnualInspection = $('.table_col[data-name="mivchan_acharon_dt"] .value').text().trim();
             const licenseValidity = $('.table_col[data-name="tokef_dt"] .activeDate').text().trim();
@@ -116,6 +128,23 @@ bot.on('text', async (ctx) => {
             replyMessage += `אוטומטי: ${isAutomatic}\n`;
             replyMessage += `טסט אחרון: ${lastAnnualInspection}\n`;
             replyMessage += `תוקף רישוי שנתי: ${licenseValidity}\n\n`;
+
+            // Adding the new technical data section
+            replyMessage += `📊 **נתונים טכניים**:\n`;
+            replyMessage += `ארץ ייצור: ${countryOfOrigin}\n`;
+            replyMessage += `סיווג תקינה אירופאית: ${europeanClassification}\n`;
+            replyMessage += `קוד תוצר: ${productCode}\n`;
+            replyMessage += `מספר דגם: ${modelNumber}\n`;
+            replyMessage += `דגם מנוע: ${engineModel}\n`;
+            replyMessage += `הוראת רישום: ${registrationOrder}\n`;
+            replyMessage += `משקל כולל: ${totalWeight}\n`;
+            replyMessage += `משקל עצמי: ${curbWeight}\n`;
+            replyMessage += `משקל מטען מורשה: ${maxCargoWeight}\n`;
+            replyMessage += `מספר מקומות ליד הנהג: ${driverSeats}\n\n`;
+
+            replyMessage += `📜 **היסטוריית בעלויות**:\n${ownershipHistory}\n\n`;
+            replyMessage += `🔧 **נתונים טכניים**:\n${technicalData}\n\n`;
+            replyMessage += `ℹ️ **מידע בסיסי על כלי הרכב**:\n${basicInfo}\n`;
 
             ctx.reply(replyMessage);
         } catch (error) {
