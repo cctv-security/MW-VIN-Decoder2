@@ -116,9 +116,6 @@ bot.on('text', async (ctx) => {
             replyMessage += `אוטומטי: ${isAutomatic}\n`;
             replyMessage += `טסט אחרון: ${lastAnnualInspection}\n`;
             replyMessage += `תוקף רישוי שנתי: ${licenseValidity}\n\n`;
-            replyMessage += `📜 **היסטוריית בעלויות**:\n${ownershipHistory}\n\n`;
-            replyMessage += `🔧 **נתונים טכניים**:\n${technicalData}\n\n`;
-            replyMessage += `ℹ️ **מידע בסיסי על כלי הרכב**:\n${basicInfo}\n`;
 
             ctx.reply(replyMessage);
         } catch (error) {
