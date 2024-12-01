@@ -81,21 +81,29 @@ await driver.wait(until.elementLocated(By.css('body')), 10000); // Wait for the 
 
             const $ = cheerio.load(response.data);
 
+             // שליפת נתונים כלליים
             const vinNumber = $('.table_col[data-name="misgeret"] .value').text().trim();
             const lastAnnualInspection = $('.table_col[data-name="mivchan_acharon_dt"] .value').text().trim();
             const licenseValidity = $('.table_col[data-name="tokef_dt"] .activeDate').text().trim();
+            const ownershipHistory = $('.ownership-history').text().trim() || 'לא זמין';
+            const technicalData = $('.technical-data').text().trim() || 'לא זמין';
+            const basicInfo = $('.basic-info').text().trim() || 'לא זמין';
 
             const carInfo = $('.add_fav').data();
 
-            let replyMessage = `بيانات السيارة:\n`;
+            // פורמט התגובה
+            let replyMessage = `🚗 **מידע על הרכב**:\n`;
             replyMessage += `דגם: ${carInfo.model}\n`;
             replyMessage += `חברה: ${carInfo.heb}\n`;
             replyMessage += `שנה: ${carInfo.year}\n`;
             replyMessage += `סוג: ${carInfo.type}\n`;
-            replyMessage += `מספר שלדה| VIN: ${vinNumber}\n`;
+            replyMessage += `מספר שלדה | VIN: ${vinNumber}\n`;
             replyMessage += `טסט אחרון: ${lastAnnualInspection}\n`;
-            replyMessage += `תוקף טסט שנתי: ${licenseValidity}\n`;
-            replyMessage += `T̷I̷R̷A̷B̷I̷M̷M̷E̷R̷\n`;
+            replyMessage += `תוקף רישוי שנתי: ${licenseValidity}\n\n`;
+            replyMessage += `📜 **היסטוריית בעלויות**:\n${ownershipHistory}\n\n`;
+            replyMessage += `🔧 **נתונים טכניים**:\n${technicalData}\n\n`;
+            replyMessage += `ℹ️ **מידע בסיסי על כלי הרכב**:\n${basicInfo}\n`;
+
 
             ctx.reply(replyMessage);
         } catch (error) {
