@@ -114,7 +114,7 @@ bot.on('text', async (ctx) => {
             replyMessage += `<b>📊 נתונים עדכניים:</b>\n`;
             replyMessage += `<b>🔑 בעלות נוכחית:</b> ${currentOwnership}\n`;
             replyMessage += `<b>🔑 קבוצת אגרה:</b> ${registrationGroup}\n`;
-            repyMessage += `<b>💰 מחיר אגרת רכב:</b> ${vehicleFee}\n\n`;
+            replyMessage += `<b>💰 מחיר אגרת רכב:</b> ${vehicleFee}\n\n`;
             //
             replyMessage += `<b>💵 מחיר יבואן:</b> ${importPrice}\n`;
             replyMessage += `<b>💸 שווי שימוש:</b> ${usageValue}\n`;
