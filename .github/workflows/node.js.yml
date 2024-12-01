@@ -21,6 +21,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run index.js
-        run: node index.js
-      
+      - name: Run main.js
+        run: node main.js
