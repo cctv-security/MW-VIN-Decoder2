@@ -5,7 +5,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const token = 'YOUR_TELEGRAM_BOT_TOKEN'; // ضع التوكن الخاص بك هنا
+const token = '7870054164:AAFXEunNupYWvCJl_3zWCq8t7QlHfy7ChLU'; // ضع التوكن الخاص بك هنا
 const CHROMEDRIVER_PATH = './chromedriver';
 
 const bot = new Telegraf(token);
