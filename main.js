@@ -49,7 +49,7 @@ bot.on('text', async (ctx) => {
 
         } catch (error) {
             console.error('Error:', error.message);
-            ctx.reply('❗حدث خطأ أثناء جلب معلومات السيارة. يرجى المحاولة مرة أخرى.');
+            ctx.reply('❌ לא ניתן לאסוף מידע על הרכב, אנא נסה שוב.');
         }
     } else {
         try {
