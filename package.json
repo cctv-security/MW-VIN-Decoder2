@@ -6,7 +6,7 @@
     "start": "node main.js"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^1.7.4",
     "cheerio": "^1.0.0-rc.5",
     "selenium-webdriver": "^4.0.0",
     "telegraf": "^4.0.0",
